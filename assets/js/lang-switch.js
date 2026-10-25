@@ -1696,10 +1696,11 @@
     document.head.appendChild(mobileStyles);
   }
 
-  function setKazakhFontFaces(enabled) {
-    const id = 'dealer-kz-font-faces';
-    document.getElementById(id)?.remove();
-    if (!enabled) return;
+  // Gotham lacks Kazakh glyphs. Use one complete font for both languages so
+  // switching RU/KZ does not mix letter shapes or change the page typography.
+  function setSiteFontFaces() {
+    const id = 'dealer-site-font-faces';
+    if (document.getElementById(id)) return;
 
     const fonts = [
       ['GothamProRegular', 'Montserrat-400.woff2', [400], 'normal'],
@@ -1783,7 +1784,7 @@
 
   function restoreRu() {
     document.documentElement.lang = 'ru';
-    setKazakhFontFaces(false);
+    setSiteFontFaces();
     elementStore.forEach((html, el) => {
       if (el && el.isConnected) el.innerHTML = html;
     });
@@ -1814,7 +1815,7 @@
   }
 
   function applyKz(showNote) {
-    setKazakhFontFaces(true);
+    setSiteFontFaces();
     selectorHtml.forEach(([selector, html]) => setHtml(selector, html));
     replaceExactText();
     document.documentElement.lang = 'kk';
@@ -2285,6 +2286,7 @@
   }
 
   function init() {
+    setSiteFontFaces();
     addStyle();
     ensureInfoSearch();
     ensureInfoMobileMenu();

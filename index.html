@@ -10,7 +10,7 @@
 	<link rel="stylesheet" href="assets/css/index.css">
 	<link rel="stylesheet" href="assets/css/menu.css">
     <link rel="stylesheet" href="assets/css/default.css">
-	<link rel="stylesheet" href="assets/css/main.css?v=20261020-pixel">
+	<link rel="stylesheet" href="assets/css/main.css?v=20261025-layout">
 	<link rel="stylesheet" href="assets/css/buttons.css?v=20261020-pixel">
 	<link rel="stylesheet" href="assets/css/favorites.css">
 	<link rel="stylesheet" href="assets/css/home-intro.css?v=20261012-original">
@@ -738,7 +738,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById(id + "_text").classList.add("active");
 
             // Обновляем атрибут 'src' и переигрываем видео
-            const newSrc = `/assets/remote/omoikiri.ru/wp-content/themes/twentynineteen/img/main/filter_${id}.mp4`;
+			const newSrc = `/assets/remote/omoikiri.ru/wp-content/themes/twentynineteen/img/main/filter_${id}_web.mp4`;
             videoSource.setAttribute("src", newSrc);
             videoElement.poster = `/assets/img/home-refresh/filter-${id.slice(-1)}-poster.jpg`;
             videoElement.load();
@@ -1188,12 +1188,11 @@ if (pc.matches) {
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
-// Load the canvas frames only as the disposer approaches the viewport.
-// Starting 99 image requests on page load delays the earlier product videos.
-const disposerCanvasMedia = window.matchMedia('(min-width: 501px)');
+// Load the compact canvas frames only as the disposer approaches the viewport.
+// They are small enough to show the same animation on phones.
 let disposerCanvasWatching = false;
 function initializeDisposerCanvas() {
-  if (!disposerCanvasMedia.matches || disposerCanvasWatching) return;
+  if (disposerCanvasWatching) return;
   disposerCanvasWatching = true;
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
@@ -1202,19 +1201,18 @@ function initializeDisposerCanvas() {
       if (canvas) initCanvas(entry.target, canvas);
       observer.unobserve(entry.target);
     }
-  }, { threshold: 0.1 });
+  }, { rootMargin: '300px 0px', threshold: 0.05 });
   gsap.utils.toArray('.anvideo').forEach(section => observer.observe(section));
 }
 initializeDisposerCanvas();
-disposerCanvasMedia.addEventListener('change', initializeDisposerCanvas);
 
 function initCanvas(section, canvas) {
   let context = canvas.getContext("2d");
-  canvas.width = 1681;
-  canvas.height = 2978;
+  canvas.width = 560;
+  canvas.height = 992;
   let frameCount = 99;
 	const currentFrame = (index) =>
-    `/assets/remote/omoikiri.ru/wp-content/themes/twentynineteen/img/main/sq/img_${index}.png`;
+    `/assets/img/disposer-frames/img_${index}.webp`;
 
   let images = [];
   let airpods = {
@@ -1369,5 +1367,5 @@ Served from: omoikiri.ru @ 2026-07-05 23:13:34 by W3 Total Cache
   });
 })();
 </script>
-<script src="assets/js/lang-switch.js?v=20261021-search-json" data-root=""></script>
+<script src="assets/js/lang-switch.js?v=20261025-font-unified" data-root=""></script>
 <script src="assets/js/local-router.js"></script>

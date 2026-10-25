@@ -297,6 +297,11 @@ p {
 	max-width: 800px;
 }
 
+/* Keep the intrinsic aspect ratio when the responsive rules set a height. */
+.sinks .sinks_right > img {
+	width: auto;
+}
+
 .sinks .sinks_right>img:nth-of-type(1) {
 	height: 85%;
 	right: -25%;
@@ -1190,6 +1195,7 @@ p {
 
 .home>img {
 	width: 100%;
+	height: auto;
 	display: block;
 	position: relative;
 	z-index: 1;
@@ -2123,7 +2129,20 @@ p {
 
 @media screen and (max-width: 500px) {
 	.anvideo_content>canvas {
-		display: none;
+		display: block;
+		width: min(100%, 300px);
+		height: auto;
+		margin: 0;
+		align-self: flex-start;
+	}
+
+	.anvideo_content {
+		flex-direction: column;
+		gap: 20px;
+	}
+
+	.anvideo_text {
+		width: 100%;
 	}
 
 	.anvideo h2 {
