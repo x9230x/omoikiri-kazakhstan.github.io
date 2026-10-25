@@ -32,9 +32,8 @@ Local rollback package for the first performance change:
   current `omoikiri.ru`, especially the DISPOSER canvas and KZ line wraps.
 - Profile first load on a throttled mobile connection. The full page is still
   media-rich, but heavy sections now load as the visitor scrolls.
-- If KZ font changes seem delayed on a previously open product or catalog tab,
-  refresh the page; those HTML files still use the old script query string and
-  may keep the prior one-hour browser cache until it expires.
+- The KZ site audit on 25 October updated the language-script URL in all 441
+  public HTML files. Previously open browser tabs may need one refresh.
 - Clean up old deployment ZIP files in Plesk only after identifying which are
   needed for rollback. Disk use was about 63% of the 25 GB plan, with no CPU,
   memory or I/O resource faults in the past 24 hours.
