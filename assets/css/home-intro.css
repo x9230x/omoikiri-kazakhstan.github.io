@@ -10,7 +10,7 @@
   height: 100vh;
   background: var(--bg, #E5E5E5);
   z-index: 2147483647;
-  animation: preload 2s ease forwards 4s;
+  animation: preload .4s ease forwards 2.7s;
 }
 
 .preloader .home-preloader-loader {

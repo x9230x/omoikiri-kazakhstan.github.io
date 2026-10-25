@@ -282,10 +282,38 @@ function serve_static(string $path): void
         send_json(['error' => 'Static file unavailable'], 503);
         return;
     }
+    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+    $modified = filemtime($file);
+    $etag = '"' . dechex($size) . '-' . dechex($modified ?: 0) . '"';
+    // URLs are stable across releases, so revalidate instead of caching forever.
+    $maxAge = in_array($extension, ['html', 'json', 'xml', 'txt'], true) ? 0 :
+        (in_array($extension, ['css', 'js'], true) ? 3600 : 86400);
+    header('Cache-Control: public, max-age=' . $maxAge . ($maxAge === 0 ? ', must-revalidate' : ''));
+    header('ETag: ' . $etag);
+    if ($modified !== false) {
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $modified) . ' GMT');
+    }
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+    $range = $_SERVER['HTTP_RANGE'] ?? null;
+    if ($range === null && in_array($method, ['GET', 'HEAD'], true)) {
+        $ifNoneMatch = $_SERVER['HTTP_IF_NONE_MATCH'] ?? null;
+        $ifModifiedSince = $_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? null;
+        if (($ifNoneMatch !== null && trim($ifNoneMatch) === $etag) ||
+            ($ifNoneMatch === null && $modified !== false && $ifModifiedSince !== null &&
+                strtotime($ifModifiedSince) !== false && strtotime($ifModifiedSince) >= $modified)) {
+            http_response_code(304);
+            return;
+        }
+    }
+    if ($range !== null && isset($_SERVER['HTTP_IF_RANGE'])) {
+        $ifRange = $_SERVER['HTTP_IF_RANGE'];
+        if ($ifRange !== $etag && ($modified === false || strtotime($ifRange) !== $modified)) {
+            $range = null;
+        }
+    }
     $start = 0;
     $end = $size - 1;
     $status = 200;
-    $range = $_SERVER['HTTP_RANGE'] ?? null;
     if ($range !== null) {
         if (!preg_match('/^bytes=(\d*)-(\d*)$/', $range, $matches) ||
             ($matches[1] === '' && $matches[2] === '')) {
@@ -314,7 +342,7 @@ function serve_static(string $path): void
     header('Content-Type: ' . $type);
     header('Content-Length: ' . ($end - $start + 1));
     header('Accept-Ranges: bytes');
-    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') {
+    if ($method === 'HEAD') {
         return;
     }
     $stream = fopen($file, 'rb');

@@ -56,6 +56,22 @@ try {
   });
   assert.equal(productionHome.statusCode, 200);
   assert.equal(productionHome.headers['x-robots-tag'], undefined);
+  const staticImage = await fetch(base + '/favicon.ico', { method: 'HEAD' });
+  assert.equal(staticImage.status, 200);
+  assert.equal(staticImage.headers.get('cache-control'), 'public, max-age=86400');
+  const etag = staticImage.headers.get('etag');
+  assert.ok(etag);
+  const revalidated = await fetch(base + '/favicon.ico',
+    { headers: { 'If-None-Match': etag } });
+  assert.equal(revalidated.status, 304);
+  const partial = await fetch(base + '/favicon.ico',
+    { headers: { Range: 'bytes=0-9' } });
+  assert.equal(partial.status, 206);
+  assert.equal((await partial.arrayBuffer()).byteLength, 10);
+  const staleRange = await fetch(base + '/favicon.ico',
+    { method: 'HEAD', headers: { Range: 'bytes=0-9', 'If-Range': '"stale"' } });
+  assert.equal(staleRange.status, 200);
+  assert.equal(staleRange.headers.get('content-range'), null);
   const privateConfig = await fetch(base + '/php-poc/config.local.php');
   assert.equal(privateConfig.status, 404);
 
